@@ -16,8 +16,8 @@ python3Packages.buildPythonApplication {
     owner = "gonsolo";
     repo = "librelane";
     rev = "gonsolo";
-    #hash = "sha256-DubuzKUqzz9P+HECq58TGLZOMyWrSwxVd1+/OIpbDgM=";
-    hash = lib.fakeHash;
+    hash = "sha256-sRZ5BSTAdNZpLxxOxdvM7Y1bS1VWjLVDJL9eyJU2+ns=";
+    #hash = lib.fakeHash;
   };
 
   propagatedBuildInputs = with python3Packages; [
