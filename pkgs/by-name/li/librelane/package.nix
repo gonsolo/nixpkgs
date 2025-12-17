@@ -8,23 +8,18 @@
 
 python3Packages.buildPythonApplication {
   pname = "librelane";
-  # Update version to match your fork's metadata if necessary
-  version = "2.4.9";
-
+  version = "3.0.0.dev45";
   pyproject = true;
   build-system = [ python3Packages.poetry-core ];
 
   src = fetchFromGitHub {
     owner = "gonsolo";
     repo = "librelane";
-    # Use the specific commit hash or branch name where your fixes are
     rev = "gonsolo";
-    # Replace with the actual hash. Use lib.fakeHash or "" to get the correct one from the error message.
-    hash = "sha256-DubuzKUqzz9P+HECq58TGLZOMyWrSwxVd1+/OIpbDgM=";
-    #hash = lib.fakeHash;
+    #hash = "sha256-DubuzKUqzz9P+HECq58TGLZOMyWrSwxVd1+/OIpbDgM=";
+    hash = lib.fakeHash;
   };
 
-  # Standard dependencies from your fork's pyproject.toml
   propagatedBuildInputs = with python3Packages; [
     pdk-ciel
     libparse-python
@@ -44,7 +39,6 @@ python3Packages.buildPythonApplication {
     yamlcore
   ];
 
-  # Kept as per your original logic for assets not handled by the build system
   postInstall = ''
     site_packages=$out/${python3Packages.python.sitePackages}
     cp -r $src/librelane/scripts $site_packages/librelane/
