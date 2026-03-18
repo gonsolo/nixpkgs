@@ -22,11 +22,6 @@ let
     enablePython = true;
   };
 
-  pname = "nextpnr";
-
-  # Version 0.9 was patched (c7cfb) for Boost 1.87+ compatibility (boost system)
-  version = "0.9-unstable-2026-02-08";
-
   prjbeyond_src = fetchFromGitHub {
     owner = "YosysHQ-GmbH";
     repo = "prjbeyond-db";
@@ -35,14 +30,15 @@ let
   };
 in
 
-stdenv.mkDerivation rec {
-  inherit pname version;
+stdenv.mkDerivation (finalAttrs: {
+  pname = "nextpnr";
+  version = "0.10";
 
   src = fetchFromGitHub {
     owner = "YosysHQ";
     repo = "nextpnr";
-    rev = "35f14336c042a9aa86cc66221434262fbb02034e";
-    hash = "sha256-5Fn/Y+pjhnGFcZsCN7XZN0nPB9u/BIr+lxgrCC5pnpE=";
+    tag = "nextpnr-${finalAttrs.version}";
+    hash = "sha256-goHHEvkBw+9s3RHGfQtRaueXRBnoI14TmfGmb+1WPAY=";
     fetchSubmodules = true;
   };
 
@@ -61,13 +57,8 @@ stdenv.mkDerivation rec {
   ++ (lib.optional stdenv.cc.isClang llvmPackages.openmp);
 
   cmakeFlags =
-    let
-      # Use the commit hash for the internal versioning
-      rev = src.rev;
-      versionStr = if (lib.hasPrefix "nextpnr-" rev) then rev else "nextpnr-${lib.substring 0 7 rev}";
-    in
     [
-      "-DCURRENT_GIT_VERSION=${versionStr}"
+      "-DCURRENT_GIT_VERSION=nextpnr-${finalAttrs.version}"
       "-DARCH=generic;ice40;ecp5;himbaechel"
       "-DBUILD_TESTS=ON"
       "-DICESTORM_INSTALL_PREFIX=${icestorm}"
@@ -113,4 +104,4 @@ stdenv.mkDerivation rec {
     platforms = lib.platforms.all;
     maintainers = with lib.maintainers; [ thoughtpolice ];
   };
-}
+})
