@@ -108,6 +108,12 @@ stdenv.mkDerivation (finalAttrs: {
     echo "set(PROTOC_PRG $(type -p protoc))" > cmake/host.cmake
     substituteInPlace CMakeLists.txt \
       --replace-fail 'set(BUILD_protobuf_matchers ON)' 'set(BUILD_protobuf_matchers OFF)'
+
+    # pkg_resources (setuptools) has since dropped this API; the import is
+    # unused dead code in this script (parse_version is never called), so
+    # just drop it instead of reaching for a replacement.
+    substituteInPlace examples/contrib/check_dependencies.py \
+      --replace-fail 'from pkg_resources import parse_version' ""
   ''
   # Patches from OpenSUSE:
   # https://build.opensuse.org/projects/science/packages/google-or-tools/files/google-or-tools.spec?expand=1
@@ -243,10 +249,5 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "fzn-cp-sat";
     maintainers = with lib.maintainers; [ andersk ];
     platforms = with lib.platforms; linux ++ darwin;
-
-    # Only version 9.15 adds support for Python 3.14: https://github.com/google/or-tools/releases/tag/v9.15
-    # Also this package is tied to pybind 2.13.6, and only 3.0.0 supports Python 3.14: https://github.com/pybind/pybind11/releases/tag/v3.0.0
-    # Also, nix review fails to build python314Packages.ortools
-    broken = python3.pythonAtLeast "3.14";
   };
 })

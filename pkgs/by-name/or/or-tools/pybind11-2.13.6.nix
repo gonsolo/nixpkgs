@@ -44,6 +44,32 @@ buildPythonPackage (finalAttrs: {
   # https://github.com/google/or-tools/commit/7f29b27840436e19b6530d5c7f23eeadd819bd3e
   patches = [ ./pybind11.patch ];
 
+  # Backport of the Python 3.14 fixes from pybind/pybind11#5646 that are
+  # applicable to 2.13.6 (that PR also touches CI/test-infra and a lazy
+  # __annotations__ code path pybind11#5646 added after 2.13.6, neither of
+  # which apply here).
+  postPatch = ''
+        # 3.14 removed _Py_fopen_obj.
+        substituteInPlace include/pybind11/eval.h \
+          --replace-fail \
+            'FILE *f = _Py_fopen_obj(fname.ptr(), "r");' \
+            'FILE *f =
+    #if PY_VERSION_HEX >= 0x030E0000
+            Py_fopen(fname.ptr(), "r");
+    #else
+            _Py_fopen_obj(fname.ptr(), "r");
+    #endif'
+
+        # 3.14 reworded TypeError's unhashable-type message so it's embedded
+        # mid-message instead of leading it; pybind11's actual behavior (raise
+        # TypeError mentioning "unhashable type") is unchanged, only the exact
+        # wording moved, so loosen the test's assertion to a substring check.
+        substituteInPlace tests/test_operator_overloading.py \
+          --replace-fail \
+            'assert str(excinfo.value.__cause__).startswith("unhashable type:")' \
+            'assert "unhashable type" in str(excinfo.value.__cause__)'
+  '';
+
   build-system = [
     cmake
     ninja
