@@ -85,6 +85,7 @@ stdenv.mkDerivation (finalAttrs: {
     maintainers = with lib.maintainers; [
       sharzy
       carlossless
+      gonsolo
     ];
     mainProgram = "slang";
     platforms = lib.platforms.all;
