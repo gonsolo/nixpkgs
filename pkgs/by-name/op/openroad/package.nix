@@ -187,6 +187,7 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "openroad";
     maintainers = with lib.maintainers; [
       hzeller
+      gonsolo
     ];
     platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
