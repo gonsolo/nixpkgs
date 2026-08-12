@@ -16,6 +16,7 @@
   pkg-config,
   swig,
   versionCheckHook,
+  nix-update-script,
 
   # buildInputs
   boost,
@@ -174,6 +175,10 @@ stdenv.mkDerivation (finalAttrs: {
 
   doInstallCheck = true;
   versionCheckProgramArg = "-version";
+
+  passthru = {
+    updateScript = nix-update-script { };
+  };
 
   meta = {
     description = "OpenROAD's unified application implementing an RTL-to-GDS flow";
