@@ -105,31 +105,36 @@ stdenv.mkDerivation (finalAttrs: {
       stripLen = 1;
       extraPrefix = "src/sta/";
     })
-    # Feature-test std::from_chars to fix aarch64-darwin build where
-    # libcxx marks from_chars unavailable (macOS 26.0).
-    # https://github.com/The-OpenROAD-Project/OpenSTA/commit/a5921d1ca
-    (fetchpatch {
-      url = "https://github.com/The-OpenROAD-Project/OpenSTA/commit/a5921d1ca964971ada83be2c7c65bb84504fe179.patch";
-      hash = "sha256-j9BneXSIya/euYiol16swmrFkXTDZNTQwq3tPFkCLH0=";
-      stripLen = 1;
-      extraPrefix = "src/sta/";
-    })
-    # Replace deprecated sprintf with snprintf in Logger::error.
-    # macOS Apple SDK 14.4+ marks sprintf as deprecated, breaking -Werror builds.
-    # https://github.com/The-OpenROAD-Project/OpenROAD/pull/10127
-    (fetchpatch {
-      url = "https://github.com/The-OpenROAD-Project/OpenROAD/commit/2a9191bc5b2841a0c357886a2a1bc3ac0fe5271a.patch";
-      hash = "sha256-lxFZvybfG0Qpg1TyKdfZhKLYI3DSCYDE54ta6EnDBDo=";
-    })
+    # Note: the from_chars feature-test patch (OpenSTA commit a5921d1ca) and
+    # the sprintf -> snprintf Logger::error patch (OpenROAD PR #10127) that
+    # used to live here are both already resolved upstream as of 26Q3: the
+    # from_chars feature-test guard is already present in the vendored
+    # OpenSTA source (patch fails as "already applied"), and error() was
+    # independently rewritten to use fmt::format instead of a raw sprintf
+    # buffer (patch fails on changed context) -- both dropped.
   ];
 
   postPatch = ''
     patchShebangs etc/
+    # New in 26Q3: src/web's CMakeLists.txt invokes these scripts directly
+    # as build steps (not just at runtime) to embed web/report assets.
+    patchShebangs src/web/src/
 
     # Disable CutGTests because it misses core manager implementation
     # and fails under strict Nix linking. Filed as issue #9563.
     if [ -f src/cut/test/cpp/CMakeLists.txt ]; then
       echo "" > src/cut/test/cpp/CMakeLists.txt
+    fi
+
+    # OpenROAD vendors its own slang copy (third-party/slang-elab), separate
+    # from nixpkgs' sv-lang_10 -- same fmt 12 fmt::format/fmt/core.h vs.
+    # fmt/format.h split as sv-lang_10 (see its own package.nix comment for
+    # the full explanation), same fix.
+    if [ -d third-party/slang-elab/third_party/slang ]; then
+      grep -rl '#include <fmt/core.h>' \
+        --include='*.h' --include='*.cpp' \
+        third-party/slang-elab/third_party/slang | \
+        xargs sed -i 's|#include <fmt/core.h>|#include <fmt/format.h>|'
     fi
   ''
 
