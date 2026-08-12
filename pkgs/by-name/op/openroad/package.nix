@@ -43,14 +43,14 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "openroad";
-  version = "26Q2";
+  version = "26Q3";
 
   src = fetchFromGitHub {
     owner = "The-OpenROAD-Project";
     repo = "OpenROAD";
     tag = finalAttrs.version;
     fetchSubmodules = true;
-    hash = "sha256-dB9PfPlp6vZ9+Th8LJE65BW9YeuUL0G4JtjzQxg6UpQ=";
+    hash = "sha256-jElAb8mM2lhGwa8wTONfQgs7esL9p1beAReJXAWns9o=";
   };
 
   nativeBuildInputs = [
