@@ -19,13 +19,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "klayout";
-  version = "0.30.10";
+  version = "0.30.11";
 
   src = fetchFromGitHub {
     owner = "KLayout";
     repo = "klayout";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ruM9+aD0k5RRpHMAzNNGtU5Xb2rmzz6yIsxxyHVcwRs=";
+    hash = "sha256-wvEoREI7Pa23OWvZ2tz7YhIN0BqADsX8i/vTUNLKTz4=";
   };
 
   __structuredAttrs = true;
